@@ -1,0 +1,38 @@
+version: '3.8'
+networks:
+  global:
+    driver: bridge
+services:
+  web:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
+    restart: always
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - db
+    networks:
+      - global
+  db:
+    image: postgres:latest
+    container_name: my_postgre
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+      - ./dbscripts:/docker-entrypoint-initdb.d
+    networks:
+      - global
+
+volumes:
+  postgres-db:
